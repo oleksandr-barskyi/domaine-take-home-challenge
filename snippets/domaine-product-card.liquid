@@ -118,11 +118,12 @@
 
 {% if card_product != blank and selected_variant != blank %}
   <article
-    class="domaine-scope w-full max-w-[620px] bg-white"
+    class="domaine-scope group flex w-full max-w-[360px] flex-col bg-white"
     data-domaine-product-card
+    data-has-secondary="{% if secondary_image %}true{% else %}false{% endif %}"
   >
-    <div class="grid grid-cols-[minmax(0,0.92fr)_minmax(0,1.08fr)] items-end gap-6">
-      <div>
+    <div class="domaine-card-media block w-full">
+      <div class="block w-full">
         <div class="rounded-[10px] border border-[#e8e8e8] bg-white p-4 transition duration-300 hover:border-zinc-300">
         <div class="relative aspect-[275/301] overflow-hidden bg-white">
           <span
@@ -136,7 +137,7 @@
           </span>
 
           <img
-            class="h-full w-full object-contain p-1 transition duration-300"
+            class="h-full w-full object-contain p-1 transition-opacity duration-300"
             data-domaine-primary-image
             {% if primary_image %}
               src="{{ primary_image | image_url: width: 700 }}"
@@ -146,6 +147,22 @@
             {% endif %}
             sizes="170px"
             alt="{{ selected_color | default: card_product.title | escape }} {{ card_product.title | escape }} flat shirt"
+            width="700"
+            height="875"
+            loading="lazy"
+          >
+
+          <img
+            class="absolute inset-0 h-full w-full object-contain p-1 opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+            data-domaine-secondary-image
+            {% if secondary_image %}
+              src="{{ secondary_image | image_url: width: 700 }}"
+              srcset="{{ secondary_image | image_url: width: 350 }} 350w, {{ secondary_image | image_url: width: 700 }} 700w, {{ secondary_image | image_url: width: 1000 }} 1000w"
+            {% else %}
+              hidden
+            {% endif %}
+            sizes="170px"
+            alt="{{ selected_color | default: card_product.title | escape }} {{ card_product.title | escape }} worn by model"
             width="700"
             height="875"
             loading="lazy"
@@ -325,27 +342,9 @@
           </div>
         {% endif %}
       </div>
-
-      <div>
-        <img
-          class="h-full max-h-[560px] w-full object-contain transition duration-300"
-          data-domaine-secondary-image
-          {% if secondary_image %}
-              src="{{ secondary_image | image_url: width: 700 }}"
-              srcset="{{ secondary_image | image_url: width: 350 }} 350w, {{ secondary_image | image_url: width: 700 }} 700w, {{ secondary_image | image_url: width: 1000 }} 1000w"
-          {% else %}
-            hidden
-          {% endif %}
-          sizes="210px"
-          alt="{{ selected_color | default: card_product.title | escape }} {{ card_product.title | escape }} worn by model"
-          width="620"
-          height="775"
-          loading="lazy"
-        >
-      </div>
     </div>
 
-    <div class="grid gap-3 pt-6">
+    <div class="domaine-card-info grid w-full gap-3 pt-6">
       <div class="grid gap-1.5">
         {% if card_product.vendor != blank %}
           <p class="text-sm font-medium leading-tight tracking-normal text-[#0a4874]">

@@ -8,3 +8,31 @@
     box-sizing: border-box;
   }
 }
+
+@layer components {
+  [data-domaine-product-card] {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    max-width: 360px;
+  }
+
+  [data-domaine-product-card] .domaine-card-media {
+    display: block;
+    width: 100%;
+  }
+
+  [data-domaine-product-card] .domaine-card-info {
+    display: grid;
+    width: 100%;
+    clear: both;
+  }
+
+  [data-domaine-product-card][data-has-secondary="true"]:hover [data-domaine-primary-image] {
+    opacity: 0;
+  }
+
+  [data-domaine-product-card][data-has-secondary="true"]:hover [data-domaine-secondary-image] {
+    opacity: 1;
+  }
+}
