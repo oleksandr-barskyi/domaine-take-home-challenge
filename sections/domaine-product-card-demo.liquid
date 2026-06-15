@@ -3,6 +3,17 @@
   if demo_product == blank
     assign demo_product = all_products['classic-cotton-tee']
   endif
+  assign color_option_index = nil
+  assign color_option = nil
+
+  for option in demo_product.options_with_values
+    assign option_name = option.name | downcase
+    if option_name contains 'color' or option_name contains 'colour'
+      assign color_option_index = forloop.index0
+      assign color_option = option
+      break
+    endif
+  endfor
 %}
 
 <section class="domaine-scope bg-white px-5 py-12 sm:px-8 lg:px-12">
@@ -20,10 +31,82 @@
             {% for variant in demo_product.variants %}
               {% liquid
                 assign variant_asset_position = forloop.index
-                assign variant_shirt_asset = 'domaine-shirt-' | append: variant_asset_position | append: '.jpg'
-                assign variant_model_asset = 'domaine-model-' | append: variant_asset_position | append: '.jpg'
-                assign variant_media = variant.featured_media | default: demo_product.featured_media
-                assign variant_image = variant_media.preview_image | default: demo_product.featured_image
+                assign variant_media = variant.featured_media
+                assign variant_image = variant_media.preview_image
+                assign variant_secondary_image = nil
+                assign variant_color = ''
+
+                if color_option_index != nil
+                  assign variant_color = variant.options[color_option_index] | downcase
+                  assign variant_color_key = variant_color | replace: ' ', '_'
+                endif
+
+                if variant_image == nil and variant_color != blank
+                  for media in demo_product.media
+                    assign media_alt = media.alt | downcase
+                    assign media_alt_key = media_alt | replace: ' ', '_'
+                    if media.media_type == 'image' and media_alt_key contains variant_color_key
+                      unless media_alt contains 'model' or media_alt contains 'man' or media_alt contains 'men' or media_alt contains 'worn'
+                        assign variant_media = media
+                        assign variant_image = media.preview_image
+                        break
+                      endunless
+                    endif
+                  endfor
+                endif
+
+                if variant_image == nil and variant_color != blank
+                  for media in demo_product.media
+                    assign media_alt = media.alt | downcase
+                    assign media_alt_key = media_alt | replace: ' ', '_'
+                    if media.media_type == 'image' and media_alt_key contains variant_color_key
+                      assign variant_media = media
+                      assign variant_image = media.preview_image
+                      break
+                    endif
+                  endfor
+                endif
+
+                for media in demo_product.media
+                  assign media_alt = media.alt | downcase
+                  assign media_alt_key = media_alt | replace: ' ', '_'
+                  if media.media_type == 'image' and variant_color != blank and media_alt_key contains variant_color_key
+                    if variant_media == nil or media.id != variant_media.id
+                      if media_alt contains 'model' or media_alt contains 'man' or media_alt contains 'men' or media_alt contains 'worn'
+                        assign variant_secondary_image = media.preview_image
+                        break
+                      endif
+                    endif
+                  endif
+                endfor
+
+                if variant_secondary_image == nil
+                  for media in demo_product.media
+                    assign media_alt = media.alt | downcase
+                    assign media_alt_key = media_alt | replace: ' ', '_'
+                    if media.media_type == 'image' and variant_color != blank and media_alt_key contains variant_color_key
+                      if variant_media == nil or media.id != variant_media.id
+                        assign variant_secondary_image = media.preview_image
+                        break
+                      endif
+                    endif
+                  endfor
+                endif
+
+                if variant_secondary_image == nil and color_option != nil
+                  assign image_position = 0
+                  assign model_position = variant_asset_position | plus: color_option.values.size
+                  for media in demo_product.media
+                    if media.media_type == 'image'
+                      assign image_position = image_position | plus: 1
+                    endif
+                    if media.media_type == 'image' and image_position == model_position
+                      assign variant_secondary_image = media.preview_image
+                      break
+                    endif
+                  endfor
+                endif
+
                 assign variant_on_sale = false
                 if variant.compare_at_price > variant.price
                   assign variant_on_sale = true
@@ -32,36 +115,26 @@
 
               <li class="rounded-lg border border-zinc-200 bg-white p-3">
                 <div class="grid aspect-square grid-cols-[0.9fr_1.1fr] items-end gap-2 overflow-hidden bg-white">
-                  {% if variant_asset_position <= 6 %}
+                  {% if variant_image %}
                     <img
                       class="h-full max-h-[78%] w-full self-center object-contain"
-                      src="{{ variant_shirt_asset | asset_url }}"
-                      alt="{{ variant.title | escape }} flat shirt"
-                      width="360"
-                      height="360"
-                      loading="lazy"
-                    >
-                    <img
-                      class="h-full w-full object-contain"
-                      src="{{ variant_model_asset | asset_url }}"
-                      alt="{{ variant.title | escape }} worn by model"
-                      width="360"
-                      height="360"
-                      loading="lazy"
-                    >
-                  {% elsif variant_image %}
-                    <img
-                      class="col-span-2 h-full w-full object-contain"
                       src="{{ variant_image | image_url: width: 360 }}"
                       alt="{{ variant_image.alt | default: variant.title | escape }}"
                       width="360"
                       height="360"
                       loading="lazy"
                     >
-                  {% else %}
-                    <div class="col-span-2 flex h-full w-full items-center justify-center text-zinc-300">
-                      {{ 'product-1' | placeholder_svg_tag: 'h-full w-full' }}
-                    </div>
+                  {% endif %}
+
+                  {% if variant_secondary_image %}
+                    <img
+                      class="h-full w-full object-contain"
+                      src="{{ variant_secondary_image | image_url: width: 360 }}"
+                      alt="{{ variant_secondary_image.alt | default: variant.title | escape }}"
+                      width="360"
+                      height="360"
+                      loading="lazy"
+                    >
                   {% endif %}
                 </div>
 

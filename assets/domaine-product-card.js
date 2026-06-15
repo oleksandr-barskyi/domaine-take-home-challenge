@@ -15,7 +15,14 @@
     };
 
     const setImage = (image, src, srcset, alt) => {
-      if (!image || !src) return;
+      if (!image) return;
+      if (!src) {
+        image.hidden = true;
+        image.removeAttribute('src');
+        image.removeAttribute('srcset');
+        return;
+      }
+      image.hidden = false;
       image.src = src;
       image.srcset = srcset || '';
       if (alt) image.alt = alt;

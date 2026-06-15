@@ -19,29 +19,61 @@
     endif
   endfor
 
-  assign primary_media = selected_variant.featured_media | default: card_product.featured_media
-  assign primary_image = primary_media.preview_image | default: card_product.featured_image
-  assign secondary_image = nil
   assign selected_color = ''
   assign selected_color_position = 0
 
-  if card_product.media.size > 1
-    if color_option_index != nil
-      assign selected_color = selected_variant.options[color_option_index] | downcase
-      for color_value in color_option.values
-        assign color_value_downcase = color_value | downcase
-        if color_value_downcase == selected_color
-          assign selected_color_position = forloop.index
-          break
-        endif
-      endfor
-    endif
+  if color_option_index != nil
+    assign selected_color = selected_variant.options[color_option_index] | downcase
+    assign selected_color_key = selected_color | replace: ' ', '_'
+    for color_value in color_option.values
+      assign color_value_downcase = color_value | downcase
+      if color_value_downcase == selected_color
+        assign selected_color_position = forloop.index
+        break
+      endif
+    endfor
+  endif
+
+  assign primary_media = selected_variant.featured_media
+  assign primary_image = primary_media.preview_image
+  assign secondary_image = nil
+
+  if primary_image == nil and selected_color != blank
     for media in card_product.media
       assign media_alt = media.alt | downcase
-      if media.media_type == 'image' and media.id != primary_media.id and selected_color != blank and media_alt contains selected_color
-        if media_alt contains 'model' or media_alt contains 'man' or media_alt contains 'men' or media_alt contains 'worn'
-          assign secondary_image = media.preview_image
+      assign media_alt_key = media_alt | replace: ' ', '_'
+      if media.media_type == 'image' and media_alt_key contains selected_color_key
+        unless media_alt contains 'model' or media_alt contains 'man' or media_alt contains 'men' or media_alt contains 'worn'
+          assign primary_media = media
+          assign primary_image = media.preview_image
           break
+        endunless
+      endif
+    endfor
+  endif
+
+  if primary_image == nil and selected_color != blank
+    for media in card_product.media
+      assign media_alt = media.alt | downcase
+      assign media_alt_key = media_alt | replace: ' ', '_'
+      if media.media_type == 'image' and media_alt_key contains selected_color_key
+        assign primary_media = media
+        assign primary_image = media.preview_image
+        break
+      endif
+    endfor
+  endif
+
+  if card_product.media.size > 1
+    for media in card_product.media
+      assign media_alt = media.alt | downcase
+      assign media_alt_key = media_alt | replace: ' ', '_'
+      if media.media_type == 'image' and selected_color != blank and media_alt_key contains selected_color_key
+        if primary_media == nil or media.id != primary_media.id
+          if media_alt contains 'model' or media_alt contains 'man' or media_alt contains 'men' or media_alt contains 'worn'
+            assign secondary_image = media.preview_image
+            break
+          endif
         endif
       endif
     endfor
@@ -49,14 +81,17 @@
     if secondary_image == nil
       for media in card_product.media
         assign media_alt = media.alt | downcase
-        if media.media_type == 'image' and media.id != primary_media.id and selected_color != blank and media_alt contains selected_color
-          assign secondary_image = media.preview_image
-          break
+        assign media_alt_key = media_alt | replace: ' ', '_'
+        if media.media_type == 'image' and selected_color != blank and media_alt_key contains selected_color_key
+          if primary_media == nil or media.id != primary_media.id
+            assign secondary_image = media.preview_image
+            break
+          endif
         endif
       endfor
     endif
 
-    if secondary_image == nil
+    if secondary_image == nil and color_option != nil
       assign image_position = 0
       assign model_position = selected_color_position | plus: color_option.values.size
       for media in card_product.media
@@ -69,25 +104,12 @@
         endif
       endfor
     endif
-
-    if secondary_image == nil
-      for media in card_product.media
-        if media.media_type == 'image' and media.id != primary_media.id
-          assign secondary_image = media.preview_image
-          break
-        endif
-      endfor
-    endif
   endif
 
-  assign secondary_image = secondary_image | default: primary_image
   assign selected_asset_position = selected_color_position
   if selected_asset_position == 0
     assign selected_asset_position = 1
   endif
-  assign swatch_count = 6
-  assign selected_shirt_asset = 'domaine-shirt-' | append: selected_asset_position | append: '.jpg'
-  assign selected_model_asset = 'domaine-model-' | append: selected_asset_position | append: '.jpg'
   assign is_on_sale = false
   if selected_variant.compare_at_price > selected_variant.price
     assign is_on_sale = true
@@ -113,79 +135,97 @@
             On Sale!
           </span>
 
-          {% if primary_image %}
-            <img
-              class="h-full w-full object-contain p-1 transition duration-300"
-              data-domaine-primary-image
-              src="{{ selected_shirt_asset | asset_url }}"
-              srcset="{{ selected_shirt_asset | asset_url }}"
-              sizes="170px"
-              alt="{{ selected_color | default: card_product.title | escape }} {{ card_product.title | escape }} flat shirt"
-              width="700"
-              height="875"
-              loading="lazy"
-            >
-          {% else %}
-            <div class="flex h-full w-full items-center justify-center p-8 text-zinc-400">
-              {{ 'product-1' | placeholder_svg_tag: 'h-full w-full' }}
-            </div>
-          {% endif %}
+          <img
+            class="h-full w-full object-contain p-1 transition duration-300"
+            data-domaine-primary-image
+            {% if primary_image %}
+              src="{{ primary_image | image_url: width: 700 }}"
+              srcset="{{ primary_image | image_url: width: 350 }} 350w, {{ primary_image | image_url: width: 700 }} 700w, {{ primary_image | image_url: width: 1000 }} 1000w"
+            {% else %}
+              hidden
+            {% endif %}
+            sizes="170px"
+            alt="{{ selected_color | default: card_product.title | escape }} {{ card_product.title | escape }} flat shirt"
+            width="700"
+            height="875"
+            loading="lazy"
+          >
         </div>
         </div>
 
-        {% if swatch_count > 1 %}
+        {% if color_option != nil and color_option.values.size > 1 %}
           <div class="mt-4 flex flex-wrap gap-2" role="group" aria-label="Choose color">
-            {% for swatch_index in (1..swatch_count) %}
+            {% for color_value in color_option.values %}
               {% liquid
-                case forloop.index
-                  when 1
-                    assign color_value = 'Blue'
+                assign color_value_downcase = color_value | downcase
+                assign color_value_key = color_value_downcase | replace: ' ', '_'
+                assign swatch_color_css = '#d4d4d8'
+                case color_value_downcase
+                  when 'blue'
                     assign swatch_color_css = '#0077c8'
-                  when 2
-                    assign color_value = 'Green'
+                  when 'green'
                     assign swatch_color_css = '#6f9849'
-                  when 3
-                    assign color_value = 'Navy'
+                  when 'navy'
                     assign swatch_color_css = '#111849'
-                  when 4
-                    assign color_value = 'Orange'
+                  when 'orange'
                     assign swatch_color_css = '#ff5b13'
-                  when 5
-                    assign color_value = 'Pink'
+                  when 'pink'
                     assign swatch_color_css = '#ffc1e6'
-                  when 6
-                    assign color_value = 'Yellow'
+                  when 'yellow'
                     assign swatch_color_css = '#f2d45f'
                 endcase
 
                 assign swatch_variant = nil
-                if color_option != nil
-                  for variant in card_product.variants
-                    if variant.options[color_option_index] == color_value
-                      assign swatch_variant = variant
-                      if variant.available
+                for variant in card_product.variants
+                  assign variant_color = variant.options[color_option_index] | downcase
+                  if variant_color == color_value_downcase
+                    assign swatch_variant = variant
+                    if variant.available
+                      break
+                    endif
+                  endif
+                endfor
+
+                assign swatch_primary_media = swatch_variant.featured_media
+                assign swatch_primary_image = swatch_primary_media.preview_image
+                assign swatch_secondary_image = nil
+                assign swatch_color_position = forloop.index
+
+                if swatch_primary_image == nil
+                  for media in card_product.media
+                    assign swatch_media_alt = media.alt | downcase
+                    assign swatch_media_alt_key = swatch_media_alt | replace: ' ', '_'
+                    if media.media_type == 'image' and swatch_media_alt_key contains color_value_key
+                      unless swatch_media_alt contains 'model' or swatch_media_alt contains 'man' or swatch_media_alt contains 'men' or swatch_media_alt contains 'worn'
+                        assign swatch_primary_media = media
+                        assign swatch_primary_image = media.preview_image
                         break
-                      endif
+                      endunless
                     endif
                   endfor
                 endif
-                assign swatch_variant = swatch_variant | default: selected_variant
 
-                assign swatch_asset_position = forloop.index
-                assign swatch_shirt_asset = 'domaine-shirt-' | append: swatch_asset_position | append: '.jpg'
-                assign swatch_model_asset = 'domaine-model-' | append: swatch_asset_position | append: '.jpg'
-                assign swatch_primary_media = swatch_variant.featured_media | default: card_product.featured_media
-                assign swatch_primary_image = swatch_primary_media.preview_image | default: card_product.featured_image
-                assign swatch_secondary_image = nil
-                assign swatch_color_downcase = color_value | downcase
-                assign swatch_color_position = forloop.index
+                if swatch_primary_image == nil
+                  for media in card_product.media
+                    assign swatch_media_alt = media.alt | downcase
+                    assign swatch_media_alt_key = swatch_media_alt | replace: ' ', '_'
+                    if media.media_type == 'image' and swatch_media_alt_key contains color_value_key
+                      assign swatch_primary_media = media
+                      assign swatch_primary_image = media.preview_image
+                      break
+                    endif
+                  endfor
+                endif
 
                 for media in card_product.media
                   assign swatch_media_alt = media.alt | downcase
-                  if media.media_type == 'image' and media.id != swatch_primary_media.id and swatch_media_alt contains swatch_color_downcase
-                    if swatch_media_alt contains 'model' or swatch_media_alt contains 'man' or swatch_media_alt contains 'men' or swatch_media_alt contains 'worn'
-                      assign swatch_secondary_image = media.preview_image
-                      break
+                  assign swatch_media_alt_key = swatch_media_alt | replace: ' ', '_'
+                  if media.media_type == 'image' and swatch_media_alt_key contains color_value_key
+                    if swatch_primary_media == nil or media.id != swatch_primary_media.id
+                      if swatch_media_alt contains 'model' or swatch_media_alt contains 'man' or swatch_media_alt contains 'men' or swatch_media_alt contains 'worn'
+                        assign swatch_secondary_image = media.preview_image
+                        break
+                      endif
                     endif
                   endif
                 endfor
@@ -193,9 +233,12 @@
                 if swatch_secondary_image == nil
                   for media in card_product.media
                     assign swatch_media_alt = media.alt | downcase
-                    if media.media_type == 'image' and media.id != swatch_primary_media.id and swatch_media_alt contains swatch_color_downcase
-                      assign swatch_secondary_image = media.preview_image
-                      break
+                    assign swatch_media_alt_key = swatch_media_alt | replace: ' ', '_'
+                    if media.media_type == 'image' and swatch_media_alt_key contains color_value_key
+                      if swatch_primary_media == nil or media.id != swatch_primary_media.id
+                        assign swatch_secondary_image = media.preview_image
+                        break
+                      endif
                     endif
                   endfor
                 endif
@@ -214,22 +257,12 @@
                   endfor
                 endif
 
-                if swatch_secondary_image == nil
-                  for media in card_product.media
-                    if media.media_type == 'image' and media.id != swatch_primary_media.id
-                      assign swatch_secondary_image = media.preview_image
-                      break
-                    endif
-                  endfor
-                endif
-
-                assign swatch_secondary_image = swatch_secondary_image | default: swatch_primary_image
                 assign swatch_on_sale = false
                 if swatch_variant.compare_at_price > swatch_variant.price
                   assign swatch_on_sale = true
                 endif
                 assign is_active = false
-                if swatch_asset_position == selected_asset_position
+                if swatch_color_position == selected_asset_position
                   assign is_active = true
                 endif
               %}
@@ -246,10 +279,14 @@
                 data-price="{{ swatch_variant.price | money | escape }}"
                 data-compare-price="{{ swatch_variant.compare_at_price | money | escape }}"
                 data-on-sale="{% if swatch_on_sale %}true{% else %}false{% endif %}"
-                data-primary-src="{{ swatch_shirt_asset | asset_url }}"
-                data-primary-srcset="{{ swatch_shirt_asset | asset_url }}"
-                data-secondary-src="{{ swatch_model_asset | asset_url }}"
-                data-secondary-srcset="{{ swatch_model_asset | asset_url }}"
+                {% if swatch_primary_image %}
+                  data-primary-src="{{ swatch_primary_image | image_url: width: 700 }}"
+                  data-primary-srcset="{{ swatch_primary_image | image_url: width: 350 }} 350w, {{ swatch_primary_image | image_url: width: 700 }} 700w, {{ swatch_primary_image | image_url: width: 1000 }} 1000w"
+                {% endif %}
+                {% if swatch_secondary_image %}
+                  data-secondary-src="{{ swatch_secondary_image | image_url: width: 700 }}"
+                  data-secondary-srcset="{{ swatch_secondary_image | image_url: width: 350 }} 350w, {{ swatch_secondary_image | image_url: width: 700 }} 700w, {{ swatch_secondary_image | image_url: width: 1000 }} 1000w"
+                {% endif %}
                 data-image-alt="{{ color_value | escape }} {{ card_product.title | escape }}"
                 data-primary-alt="{{ color_value | escape }} {{ card_product.title | escape }} flat shirt"
                 data-secondary-alt="{{ color_value | escape }} {{ card_product.title | escape }} worn by model"
@@ -262,21 +299,21 @@
       </div>
 
       <div>
-        {% if primary_image %}
-            <img
-              class="h-full max-h-[560px] w-full object-contain transition duration-300"
-              data-domaine-secondary-image
-              src="{{ selected_model_asset | asset_url }}"
-              srcset="{{ selected_model_asset | asset_url }}"
-              sizes="210px"
-              alt="{{ selected_color | default: card_product.title | escape }} {{ card_product.title | escape }} worn by model"
-              width="620"
-              height="775"
-              loading="lazy"
-            >
-        {% else %}
-          {{ 'product-1' | placeholder_svg_tag: 'h-full w-full text-zinc-300' }}
-        {% endif %}
+        <img
+          class="h-full max-h-[560px] w-full object-contain transition duration-300"
+          data-domaine-secondary-image
+          {% if secondary_image %}
+              src="{{ secondary_image | image_url: width: 700 }}"
+              srcset="{{ secondary_image | image_url: width: 350 }} 350w, {{ secondary_image | image_url: width: 700 }} 700w, {{ secondary_image | image_url: width: 1000 }} 1000w"
+          {% else %}
+            hidden
+          {% endif %}
+          sizes="210px"
+          alt="{{ selected_color | default: card_product.title | escape }} {{ card_product.title | escape }} worn by model"
+          width="620"
+          height="775"
+          loading="lazy"
+        >
       </div>
     </div>
 
