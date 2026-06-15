@@ -157,11 +157,13 @@
           <div class="mt-4 flex flex-wrap gap-2" role="group" aria-label="Choose color">
             {% for color_value in color_option.values %}
               {% liquid
-                assign color_value_name = color_value.name | default: color_value
+                assign color_value_name = color_value.name
+                if color_value_name == blank
+                  assign color_value_name = color_value
+                endif
                 assign color_value_downcase = color_value_name | downcase
                 assign color_value_key = color_value_downcase | replace: ' ', '_'
                 assign swatch = color_value.swatch
-                assign swatch_image = swatch.image
                 assign swatch_color = swatch.color
                 assign swatch_color_css = '#d4d4d8'
 
@@ -181,6 +183,18 @@
                       assign swatch_color_css = '#ffccff'
                     when 'yellow'
                       assign swatch_color_css = '#fce78d'
+                    when 'graphite'
+                      assign swatch_color_css = '#2f3437'
+                    when 'ivory'
+                      assign swatch_color_css = '#f4efe6'
+                    when 'clay'
+                      assign swatch_color_css = '#b86f52'
+                    when 'moss'
+                      assign swatch_color_css = '#61705a'
+                    when 'mist'
+                      assign swatch_color_css = '#b9c6c9'
+                    when 'cocoa'
+                      assign swatch_color_css = '#6f5142'
                   endcase
                 endif
 
@@ -278,7 +292,8 @@
 
               <button
                 type="button"
-                class="flex h-[23px] w-[23px] items-center justify-center rounded-full border transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0a4874] focus-visible:ring-offset-2 {% if is_active %}border-[#0a4874]{% else %}border-transparent{% endif %}"
+                class="flex h-[23px] w-[23px] items-center justify-center rounded-full p-0 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0a4874] focus-visible:ring-offset-2"
+                style="border: 1px solid {% if is_active %}#0a4874{% else %}transparent{% endif %};"
                 aria-label="Select {{ color_value_name | escape }}"
                 aria-pressed="{% if is_active %}true{% else %}false{% endif %}"
                 title="{{ color_value_name | escape }}"
@@ -300,8 +315,8 @@
                 data-secondary-alt="{{ color_value_name | escape }} {{ card_product.title | escape }} worn by model"
               >
                 <span
-                  class="block h-5 w-5 rounded-full bg-cover bg-center"
-                  style="{% if swatch_image != blank %}background-image: url('{{ swatch_image | image_url: width: 48 }}');{% else %}background-color: {{ swatch_color_css | escape }};{% endif %}"
+                  class="block rounded-full bg-cover bg-center"
+                  style="width: 20px; height: 20px; background-color: {{ swatch_color_css | escape }};"
                   aria-hidden="true"
                 ></span>
                 <span class="sr-only">{{ color_value_name | escape }}</span>

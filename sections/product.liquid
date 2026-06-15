@@ -1,45 +1,30 @@
 {% comment %}
-  This section is used in the product template to render product page with
-  media, content, and add-to-cart form.
-
-  https://shopify.dev/docs/storefronts/themes/architecture/templates/product
+  Product page focused on the reusable Domaine product card component.
 {% endcomment %}
 
-<div class="product-images">
-  {% for image in product.images %}
-    {% render 'image', class: 'product-image', image: image %}
-  {% endfor %}
-</div>
+<section class="domaine-scope bg-white px-5 py-12 sm:px-8 lg:px-12">
+  <div class="mx-auto mb-8 max-w-7xl">
+    <a
+      class="inline-flex items-center justify-center rounded-full border border-[#0a4874] px-5 py-2 text-sm font-medium leading-none tracking-normal text-[#0a4874] transition hover:bg-[#0a4874] hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0a4874] focus-visible:ring-offset-2"
+      href="{{ routes.root_url }}"
+    >
+      Back
+    </a>
+  </div>
 
-<div class="product-info">
-  <h1>{{ product.title }}</h1>
-  <p>{{ product.price | money }}</p>
-  <p>{{ product.description }}</p>
-</div>
+  <div class="mx-auto grid max-w-7xl gap-10 lg:grid-cols-[620px_minmax(0,1fr)] lg:items-start">
+    {% render 'domaine-product-card', product: product %}
+    {% render 'domaine-product-variant-grid', product: product %}
+  </div>
 
-<div class="product-form">
-  {% form 'product', product %}
-    {% assign current_variant = product.selected_or_first_available_variant %}
-
-    <select name="id">
-      {% for variant in product.variants %}
-        <option
-          value="{{ variant.id }}"
-          {% if variant == current_variant %}
-            selected="selected"
-          {% endif %}
-        >
-          {{ variant.title }} - {{ variant.price | money }}
-        </option>
-      {% endfor %}
-    </select>
-
-    <input type="text" name="quantity" min="1" value="1">
-
-    <input type="submit" value="Add to cart">
-    {{ form | payment_button }}
-  {% endform %}
-</div>
+  {% if product.description != blank %}
+    <div class="mx-auto mt-12 max-w-7xl border-t border-[#e8e8e8] pt-8">
+      <div class="max-w-[620px] text-sm leading-relaxed text-zinc-700">
+        {{ product.description }}
+      </div>
+    </div>
+  {% endif %}
+</section>
 
 {% schema %}
 {
