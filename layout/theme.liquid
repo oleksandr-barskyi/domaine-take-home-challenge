@@ -21,6 +21,10 @@
     {{ 'critical.css' | asset_url | stylesheet_tag: preload: true }}
     {{ 'domaine.css' | asset_url | stylesheet_tag }}
 
+    {% if settings.favicon != blank %}
+      <link rel="icon" sizes="32x32" href="{{ settings.favicon | image_url: width: 32, height: 32 }}">
+    {% endif %}
+
     {% # Social, title, etc. %}
     {% render 'meta-tags' %}
 
