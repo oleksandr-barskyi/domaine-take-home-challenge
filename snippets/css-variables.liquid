@@ -4,11 +4,25 @@
   {{ settings.type_primary_font | font_modify: 'weight', 'bold' | font_face: font_display: 'swap' }}
   {{ settings.type_primary_font | font_modify: 'weight', 'bold' | font_modify: 'style', 'italic' | font_face: font_display: 'swap' }}
   {{ settings.type_primary_font | font_modify: 'style', 'italic' | font_face: font_display: 'swap' }}
+  {{ settings.domaine_card_text_font | font_face: font_display: 'swap' }}
+  {{ settings.domaine_card_text_font | font_modify: 'weight', 'bold' | font_face: font_display: 'swap' }}
+  {{ settings.domaine_card_badge_font | font_face: font_display: 'swap' }}
+  {{ settings.domaine_card_badge_font | font_modify: 'weight', 'bold' | font_face: font_display: 'swap' }}
 
   :root {
     --font-primary--family: {{ settings.type_primary_font.family }}, {{ settings.type_primary_font.fallback_families }};
     --font-primary--style: {{ settings.type_primary_font.style }};
     --font-primary--weight: {{ settings.type_primary_font.weight }};
+    --domaine-card-text-font-family: {{ settings.domaine_card_text_font.family }}, {{ settings.domaine_card_text_font.fallback_families }};
+    --domaine-card-text-font-style: {{ settings.domaine_card_text_font.style }};
+    --domaine-card-title-weight: {{ settings.domaine_card_title_weight }};
+    --domaine-card-badge-font-family: "Franklin Gothic ATF", "Franklin Gothic Medium", {{ settings.domaine_card_badge_font.family }}, {{ settings.domaine_card_badge_font.fallback_families }};
+    --domaine-card-badge-font-style: {{ settings.domaine_card_badge_font.style }};
+    --domaine-card-text-color: {{ settings.domaine_card_text_color }};
+    --domaine-card-title-color: {{ settings.domaine_card_title_color }};
+    --domaine-card-sale-color: {{ settings.domaine_card_sale_color }};
+    --domaine-card-border-color: {{ settings.domaine_card_border_color }};
+    --domaine-card-active-color: {{ settings.domaine_card_active_color }};
     --page-width: {{ settings.max_page_width }};
     --page-margin: {{ settings.min_page_margin }}px;
     --color-background: {{ settings.background_color }};

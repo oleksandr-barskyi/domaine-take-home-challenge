@@ -15,6 +15,9 @@
     flex-direction: column;
     width: 100%;
     max-width: 344px;
+    color: var(--domaine-card-text-color, #111111);
+    font-family: var(--domaine-card-text-font-family, var(--font-primary--family));
+    font-style: var(--domaine-card-text-font-style, normal);
   }
 
   [data-domaine-product-card] .domaine-card-media {
@@ -26,6 +29,37 @@
     display: grid;
     width: 100%;
     clear: both;
+  }
+
+  [data-domaine-product-card] .domaine-card-frame {
+    border-color: var(--domaine-card-border-color, #e8e8e8);
+  }
+
+  [data-domaine-product-card] [data-domaine-sale-badge] {
+    border-color: var(--domaine-card-sale-color, #ff0000);
+    color: var(--domaine-card-sale-color, #ff0000);
+    font-family: var(--domaine-card-badge-font-family, var(--domaine-card-text-font-family, var(--font-primary--family)));
+    font-style: var(--domaine-card-badge-font-style, normal);
+    font-weight: 500;
+  }
+
+  [data-domaine-product-card] [data-domaine-card-vendor],
+  [data-domaine-product-card] [data-domaine-compare-price],
+  [data-domaine-product-card] [data-domaine-price].text-\[\#111111\] {
+    color: var(--domaine-card-text-color, #111111);
+  }
+
+  [data-domaine-product-card] [data-domaine-compare-price] {
+    text-decoration-color: var(--domaine-card-text-color, #111111);
+  }
+
+  [data-domaine-product-card] [data-domaine-card-title] {
+    color: var(--domaine-card-title-color, #0a4874);
+    font-weight: var(--domaine-card-title-weight, 600);
+  }
+
+  [data-domaine-product-card] [data-domaine-price].text-\[\#ff0000\] {
+    color: var(--domaine-card-sale-color, #ff0000);
   }
 
   [data-domaine-swatch] {
@@ -48,7 +82,13 @@
   }
 
   [data-domaine-variant-option][aria-pressed="true"] {
-    border-color: #0a4874;
+    border-color: var(--domaine-card-active-color, #0a4874);
+  }
+
+  [data-domaine-product-card] [data-domaine-swatch]:focus-visible,
+  [data-domaine-product-card] a:focus-visible,
+  [data-domaine-variant-option][aria-pressed]:focus-visible {
+    --tw-ring-color: var(--domaine-card-active-color, #0a4874);
   }
 
   [data-domaine-product-card][data-image-view="secondary"] [data-domaine-primary-image] {
@@ -69,7 +109,7 @@
     }
 
     [data-domaine-variant-option][aria-pressed="true"]:hover {
-      border-color: #0a4874;
+      border-color: var(--domaine-card-active-color, #0a4874);
     }
 
     [data-domaine-product-card][data-has-secondary="true"]:hover [data-domaine-primary-image] {

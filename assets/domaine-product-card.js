@@ -28,7 +28,12 @@
     element.hidden = shouldHide;
   }
 
-  function updateSwatchState(swatches, activeSwatch) {
+  function getCssVariable(element, name, fallback) {
+    const value = window.getComputedStyle(element).getPropertyValue(name).trim();
+    return value || fallback;
+  }
+
+  function updateSwatchState(swatches, activeSwatch, activeColor) {
     swatches.forEach((swatch) => {
       const isActive = swatch === activeSwatch;
       const swatchRing = swatch.querySelector('[data-domaine-swatch-ring]');
@@ -36,7 +41,7 @@
       swatch.setAttribute('aria-pressed', isActive ? 'true' : 'false');
 
       if (swatchRing) {
-        swatchRing.style.borderColor = isActive ? '#0a4874' : 'transparent';
+        swatchRing.style.borderColor = isActive ? activeColor : 'transparent';
       }
     });
   }
@@ -130,7 +135,7 @@
       }
 
       toggleHidden(saleBadge, !isOnSale);
-      updateSwatchState(swatches, swatch);
+      updateSwatchState(swatches, swatch, getCssVariable(card, '--domaine-card-active-color', '#0a4874'));
       updateVariantOptionState(variantOptions, nextVariantId, nextColorValue);
     }
 

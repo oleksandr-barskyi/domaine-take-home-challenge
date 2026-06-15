@@ -33,6 +33,85 @@
     ]
   },
   {
+    "name": "Domaine product card",
+    "settings": [
+      {
+        "type": "header",
+        "content": "Typography"
+      },
+      {
+        "type": "font_picker",
+        "id": "domaine_card_text_font",
+        "default": "roboto_n4",
+        "label": "Text font"
+      },
+      {
+        "type": "font_picker",
+        "id": "domaine_card_badge_font",
+        "default": "roboto_n4",
+        "label": "Sale badge font"
+      },
+      {
+        "type": "select",
+        "id": "domaine_card_title_weight",
+        "default": "600",
+        "label": "Product title weight",
+        "options": [
+          {
+            "value": "500",
+            "label": "Medium"
+          },
+          {
+            "value": "600",
+            "label": "Semibold"
+          },
+          {
+            "value": "700",
+            "label": "Bold"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": "The sale badge tries Franklin Gothic first when it is available, then uses this selected font."
+      },
+      {
+        "type": "header",
+        "content": "Colors"
+      },
+      {
+        "type": "color",
+        "id": "domaine_card_text_color",
+        "default": "#111111",
+        "label": "Text"
+      },
+      {
+        "type": "color",
+        "id": "domaine_card_title_color",
+        "default": "#0A4874",
+        "label": "Product title"
+      },
+      {
+        "type": "color",
+        "id": "domaine_card_sale_color",
+        "default": "#FF0000",
+        "label": "Sale"
+      },
+      {
+        "type": "color",
+        "id": "domaine_card_border_color",
+        "default": "#E8E8E8",
+        "label": "Media border"
+      },
+      {
+        "type": "color",
+        "id": "domaine_card_active_color",
+        "default": "#0A4874",
+        "label": "Active state"
+      }
+    ]
+  },
+  {
     "name": "t:general.layout",
     "settings": [
       {
