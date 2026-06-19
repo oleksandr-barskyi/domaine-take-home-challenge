@@ -2,6 +2,8 @@
 
   let addToCartButton = document.querySelector('#add-to-cart');
 
+  addToCartButton.variantId = addToCartButton.dataset.variantId;
+
   addToCartButton.addEventListener('click', () => {
     console.log('addToCartButton = ', addToCartButton.variantId);
 
@@ -136,7 +138,7 @@
       const nextColorValue = swatch.dataset.colorValue || '';
 
 
-      addToCartButton.variantId = swatch.dataset.variantId;
+      addToCartButton.variantId = nextVariantId;
 
       // console.log(addToCartButton.variantId);
 
