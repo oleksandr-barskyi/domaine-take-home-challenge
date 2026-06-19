@@ -63,6 +63,10 @@
     const saleBadge = card.querySelector('[data-domaine-sale-badge]');
     const price = card.querySelector('[data-domaine-price]');
     const comparePrice = card.querySelector('[data-domaine-compare-price]');
+    const variantIdInput = card.querySelector('[data-domaine-variant-id-input]');
+    const addToCartButton = card.querySelector('[data-domaine-add-to-cart]');
+    const addToCartLabel = card.querySelector('[data-domaine-add-to-cart-label]');
+    const buyNowButton = card.querySelector('[data-domaine-buy-now]');
     const swatches = [...card.querySelectorAll('[data-domaine-swatch]')];
     const productContext = card.parentElement || card;
     const variantOptions = [...productContext.querySelectorAll('[data-domaine-variant-option]')];
@@ -93,7 +97,7 @@
 
     setImageView('primary');
 
-    function selectSwatch(swatch, activeVariantIdOverride) {
+    function selectSwatch(swatch, activeVariantIdOverride, activeAvailabilityOverride) {
       if (!swatch) return;
 
       const primarySrc = swatch.dataset.primarySrc || '';
@@ -105,6 +109,10 @@
       const nextComparePrice = swatch.dataset.comparePrice || '';
       const nextVariantId = activeVariantIdOverride || swatch.dataset.variantId || '';
       const nextColorValue = swatch.dataset.colorValue || '';
+      const isAvailable =
+          typeof activeAvailabilityOverride === 'boolean'
+              ? activeAvailabilityOverride
+              : swatch.dataset.available === 'true';
 
       setImage(
           primaryImage,
@@ -135,6 +143,20 @@
       }
 
       toggleHidden(saleBadge, !isOnSale);
+
+      if (variantIdInput && nextVariantId) {
+        variantIdInput.value = nextVariantId;
+      }
+
+      [addToCartButton, buyNowButton].forEach((button) => {
+        if (!button) return;
+        button.disabled = !nextVariantId || !isAvailable;
+      });
+
+      if (addToCartLabel) {
+        addToCartLabel.textContent = isAvailable ? 'Add to cart' : 'Sold out';
+      }
+
       updateSwatchState(swatches, swatch, getCssVariable(card, '--domaine-card-active-color', '#0a4874'));
       updateVariantOptionState(variantOptions, nextVariantId, nextColorValue);
     }
@@ -151,7 +173,7 @@
             swatches.find((swatch) => swatch.dataset.variantId === option.dataset.variantId) ||
             swatches.find((swatch) => swatch.dataset.colorValue === option.dataset.colorValue);
 
-        selectSwatch(matchingSwatch, option.dataset.variantId || '');
+        selectSwatch(matchingSwatch, option.dataset.variantId || '', option.dataset.available === 'true');
       });
     });
   }
