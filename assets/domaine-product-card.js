@@ -1,34 +1,32 @@
 (() => {
+
   let addToCartButton = document.querySelector('#add-to-cart');
 
-  if (addToCartButton) {
-    addToCartButton.variantId = addToCartButton.dataset.variantId;
+  addToCartButton.addEventListener('click', () => {
+    console.log('addToCartButton = ', addToCartButton.variantId);
 
-    addToCartButton.addEventListener('click', () => {
-      console.log('addToCartButton = ', addToCartButton.variantId);
+    let formData = {
+      'items': [{
+        'id': addToCartButton.variantId,
+        'quantity': 1
+      }]
+    };
 
-      let formData = {
-        'items': [{
-          'id': addToCartButton.variantId,
-          'quantity': 1
-        }]
-      };
+    fetch(window.Shopify.routes.root + 'cart/add.js', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(formData)
+    })
+        .then(response => {
+          return response.json();
+        })
+        .catch((error) => {
+          console.error('Error:', error);
+        });
 
-      fetch(window.Shopify.routes.root + 'cart/add.js', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(formData)
-      })
-          .then(response => {
-            return response.json();
-          })
-          .catch((error) => {
-            console.error('Error:', error);
-          });
-    });
-  }
+  });
 
   function setImage(image, src, srcset, alt) {
     if (!image) return;
@@ -137,9 +135,10 @@
       const nextVariantId = activeVariantIdOverride || swatch.dataset.variantId || '';
       const nextColorValue = swatch.dataset.colorValue || '';
 
-      if (addToCartButton) {
-        addToCartButton.variantId = nextVariantId;
-      }
+
+      addToCartButton.variantId = swatch.dataset.variantId;
+
+      // console.log(addToCartButton.variantId);
 
       setImage(
           primaryImage,
