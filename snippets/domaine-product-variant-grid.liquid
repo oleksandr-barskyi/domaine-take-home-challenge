@@ -123,6 +123,7 @@
             data-domaine-variant-option
             data-variant-id="{{ variant.id }}"
             data-color-value="{{ variant_color | escape }}"
+            data-available="{% if variant.available %}true{% else %}false{% endif %}"
             aria-label="Select {{ variant.title | escape }}"
             aria-pressed="{% if is_active %}true{% else %}false{% endif %}"
           >
