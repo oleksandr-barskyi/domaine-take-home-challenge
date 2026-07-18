@@ -329,7 +329,6 @@
                 data-price="{{ swatch_variant.price | money | escape }}"
                 data-compare-price="{{ swatch_variant.compare_at_price | money | escape }}"
                 data-on-sale="{% if swatch_on_sale %}true{% else %}false{% endif %}"
-                data-available="{% if swatch_variant.available %}true{% else %}false{% endif %}"
                 {% if swatch_primary_image %}
                   data-primary-src="{{ swatch_primary_image | image_url: width: 700 }}"
                   data-primary-srcset="{{ swatch_primary_image | image_url: width: 350 }} 350w, {{ swatch_primary_image | image_url: width: 700 }} 700w, {{ swatch_primary_image | image_url: width: 1000 }} 1000w"
@@ -391,36 +390,10 @@
         </span>
       </div>
 
-      <form class="mt-3 grid gap-2" action="{{ routes.cart_add_url }}" method="post" enctype="multipart/form-data" data-domaine-product-form>
-        <input type="hidden" name="id" value="{{ selected_variant.id }}" data-domaine-variant-id-input>
-        <input type="hidden" name="quantity" value="1">
+      <button id='add-to-cart' data-variant-id="{{ selected_variant.id }}" class="inline-flex w-fit items-center justify-center rounded-full border border-[#0a4874] px-5 py-2 text-sm font-medium leading-none tracking-normal text-[#0a4874] transition hover:bg-[#0a4874] hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0a4874] focus-visible:ring-offset-2">
+        Add to cart
+      </button>
 
-        <button
-          type="submit"
-          class="inline-flex h-[42px] w-full items-center justify-center rounded-full border border-[#0a4874] bg-[#0a4874] px-5 text-sm font-medium leading-none tracking-normal text-white transition hover:bg-white hover:text-[#0a4874] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0a4874] focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:border-zinc-300 disabled:bg-zinc-200 disabled:text-zinc-500"
-          data-domaine-add-to-cart
-          {% unless selected_variant.available %}
-            disabled
-          {% endunless %}
-        >
-          <span data-domaine-add-to-cart-label>
-            {% if selected_variant.available %}Add to cart{% else %}Sold out{% endif %}
-          </span>
-        </button>
-
-        <button
-          type="submit"
-          name="return_to"
-          value="/checkout"
-          class="inline-flex h-[42px] w-full items-center justify-center rounded-full border border-[#111111] bg-white px-5 text-sm font-medium leading-none tracking-normal text-[#111111] transition hover:bg-[#111111] hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0a4874] focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:border-zinc-300 disabled:bg-zinc-100 disabled:text-zinc-500"
-          data-domaine-buy-now
-          {% unless selected_variant.available %}
-            disabled
-          {% endunless %}
-        >
-          Buy now
-        </button>
-      </form>
     </div>
   </article>
 {% endif %}

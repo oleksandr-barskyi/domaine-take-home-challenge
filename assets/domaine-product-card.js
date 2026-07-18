@@ -1,4 +1,37 @@
 (() => {
+
+  let addToCartButton = document.querySelector('#add-to-cart');
+
+  addToCartButton.variantId = addToCartButton.dataset.variantId;
+
+  addToCartButton.addEventListener('click', () => {
+    console.log('addToCartButton = ', addToCartButton.variantId);
+
+    if (!addToCartButton.variantId) return;
+
+    let formData = {
+      'items': [{
+        'id': addToCartButton.variantId,
+        'quantity': 1
+      }]
+    };
+
+    fetch(window.Shopify.routes.root + 'cart/add.js', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(formData)
+    })
+        .then(response => {
+          return response.json();
+        })
+        .catch((error) => {
+          console.error('Error:', error);
+        });
+
+  });
+
   function setImage(image, src, srcset, alt) {
     if (!image) return;
 
@@ -113,6 +146,11 @@
           typeof activeAvailabilityOverride === 'boolean'
               ? activeAvailabilityOverride
               : swatch.dataset.available === 'true';
+
+
+      addToCartButton.variantId = nextVariantId;
+
+      // console.log(addToCartButton.variantId);
 
       setImage(
           primaryImage,
