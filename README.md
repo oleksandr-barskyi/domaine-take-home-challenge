@@ -47,6 +47,8 @@ Install dependencies:
 npm install
 ```
 
+This installs the Tailwind CLI and Shopify tooling used by the local build and validation commands.
+
 Build the compiled CSS:
 
 ```bash
